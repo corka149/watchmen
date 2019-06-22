@@ -1,6 +1,8 @@
 defmodule Watchmen.PodWatcher do
   alias Kazan.Watcher
 
+  require Logger
+
   use GenServer
 
       # # # # # #
@@ -27,9 +29,11 @@ defmodule Watchmen.PodWatcher do
   def handle_info(%Watcher.Event{object: object, type: type}, state) do
 
     case object do
-      %Kazan.Apis.Core.V1.Pod{} = pod ->
-        %{metadata: %{name: pod_name}} = pod
-        IO.puts "pod_name=#{pod_name} -> type=#{type}"
+      %Kazan.Apis.Core.V1.Pod{metadata: %{name: pod_name}} = pod->
+        states = Watchmen.PodUtils.pod_container_statuses(pod)
+                  |> Enum.map(&Watchmen.ContainerUtils.current_state/1)
+        IO.inspect states
+        Logger.info "pod_name=#{pod_name} -> event type=#{type}"
     end
 
     {:noreply, state}
