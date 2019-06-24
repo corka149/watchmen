@@ -1,9 +1,14 @@
 defmodule Watchmen.PodWatcher do
-  alias Kazan.Watcher
+  use GenServer
 
   require Logger
 
-  use GenServer
+  alias Kazan.Watcher
+  alias Watchmen.ContainerUtils
+  alias Watchmen.AlerterClient
+
+  @target_address {172, 31, 165, 193}
+  @target_port 4040
 
       # # # # # #
     # Client  #
@@ -30,13 +35,33 @@ defmodule Watchmen.PodWatcher do
 
     case object do
       %Kazan.Apis.Core.V1.Pod{metadata: %{name: pod_name}} = pod->
-        states = Watchmen.PodUtils.pod_container_statuses(pod)
-                  |> Enum.map(&Watchmen.ContainerUtils.current_state/1)
-        IO.inspect states
+        Watchmen.PodUtils.pod_container_statuses(pod)
+        |> notify_state_change()
+
         Logger.info "pod_name=#{pod_name} -> event type=#{type}"
     end
 
     {:noreply, state}
   end
 
+  defp notify_state_change(container_statuses) do
+    cond do
+      is_anybody_running?(container_statuses)     -> AlerterClient.activate_green_light(@target_address, @target_port)
+      is_anybody_waiting?(container_statuses)     -> AlerterClient.activate_yellow_light(@target_address, @target_port)
+      is_anybody_terminating?(container_statuses) -> AlerterClient.activate_red_light(@target_address, @target_port)
+      true                                        -> Logger.info "No matching state found."
+    end
+  end
+
+  defp is_anybody_running?(container_statuses) do
+    container_statuses|> Enum.any?(&ContainerUtils.is_running?/1)
+  end
+
+  defp is_anybody_waiting?(container_statuses) do
+    container_statuses |> Enum.any?(&ContainerUtils.is_waiting?/1)
+  end
+
+  defp is_anybody_terminating?(container_statuses) do
+    container_statuses |> Enum.any?(&ContainerUtils.is_terminated?/1)
+  end
 end
