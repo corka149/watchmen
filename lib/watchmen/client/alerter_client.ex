@@ -1,4 +1,4 @@
-defmodule Watchmen.AlerterClient do
+defmodule Watchmen.Client.AlerterClient do
   @moduledoc """
   A client for the alerter (https://github.com/corka149/alerter).
   """
