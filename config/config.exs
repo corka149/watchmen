@@ -29,4 +29,4 @@ use Mix.Config
 #
 #     import_config "#{Mix.env()}.exs"
 
-config :kazan, :server, {:kubeconfig, "/home/corka/.kube/config"}
+config :kazan, :server, {:kubeconfig, System.user_home! <> "/.kube/config"}
