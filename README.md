@@ -1,6 +1,6 @@
 # Watchmen
 
-**TODO: Add description**
+This is a simple observer for a kubernetes cluster.
 
 ## Installation
 
@@ -10,7 +10,7 @@ by adding `watchmen` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:watchmen, "~> 0.1.0"}
+    {:watchmen, "~> 0.2.0"}
   ]
 end
 ```
