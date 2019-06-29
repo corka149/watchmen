@@ -1,31 +1,39 @@
 defmodule Watchmen.Client.AlerterClient do
+  @behaviour Watchmen.Client.WatchmenClient
+
   @moduledoc """
   A client for the alerter (https://github.com/corka149/alerter).
   """
 
+  @target_address {172, 31, 165, 193}
+  @target_port 4040
+
   @doc """
   Turns on the green traffic light.
   """
-  def activate_green_light(address, tar_port) when is_integer(tar_port) do
+  def activate_running_state(_container_names) do
     open_socket(0)
-    |> send_and_close(address, tar_port, "green\n")
+    |> send_and_close(@target_address,  @target_port, "green\n")
+    :ok
   end
 
   @doc """
   Turns on the yellow traffic light.
   """
-  def activate_yellow_light(address, tar_port) when is_integer(tar_port) do
+  def activate_waiting_state(_container_names) do
     open_socket(0)
-    |> send_and_close(address, tar_port, "yellow\n")
+    |> send_and_close(@target_address,  @target_port, "yellow\n")
+    :ok
   end
 
 
   @doc """
   Turns on the red traffic light.
   """
-  def activate_red_light(address, tar_port) when is_integer(tar_port) do
+  def activate_terminating_state(_container_names) do
     open_socket(0)
-    |> send_and_close(address, tar_port, "red\n")
+    |> send_and_close(@target_address,  @target_port, "red\n")
+    :ok
   end
 
   defp open_socket(port) when is_integer(port) do

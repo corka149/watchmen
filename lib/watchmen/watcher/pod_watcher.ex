@@ -5,10 +5,8 @@ defmodule Watchmen.PodWatcher do
 
   alias Kazan.Watcher
   alias Watchmen.ContainerUtils
-  alias Watchmen.AlerterClient
+  alias Watchmen.Client.AlerterClient
 
-  @target_address {172, 31, 165, 193}
-  @target_port 4040
 
       # # # # # #
     # Client  #
@@ -46,9 +44,9 @@ defmodule Watchmen.PodWatcher do
 
   defp notify_state_change(container_statuses) do
     cond do
-      is_anybody_running?(container_statuses)     -> AlerterClient.activate_green_light(@target_address, @target_port)
-      is_anybody_waiting?(container_statuses)     -> AlerterClient.activate_yellow_light(@target_address, @target_port)
-      is_anybody_terminating?(container_statuses) -> AlerterClient.activate_red_light(@target_address, @target_port)
+      is_anybody_running?(container_statuses)     -> AlerterClient.activate_running_state([])      # TODO fill in names
+      is_anybody_waiting?(container_statuses)     -> AlerterClient.activate_waiting_state([])      # TODO fill in names
+      is_anybody_terminating?(container_statuses) -> AlerterClient.activate_terminating_state([])  # TODO fill in names
       true                                        -> Logger.info "No matching state found."
     end
   end
